@@ -1,7 +1,7 @@
 import "dotenv/config";
 import * as sdk from "matrix-js-sdk";
 import { RoomEvent, ClientEvent } from "matrix-js-sdk";
-import handleMessage from "./messages";
+import handleMessage, { handleJoin } from "./messages";
 import handleReaction from "./reactions";
 
 const { homeserver, access_token, userId, whatsAppRoomId } = process.env;
@@ -38,6 +38,8 @@ const start = async () => {
       if (event.event.room_id !== whatsAppRoomId) {
         return; // don't activate unless in the active room
       }
+
+      if (event.getType() === "m.room.member" && event.event.unsigned.membership === "join") handleJoin(event);
 
       if (
         event.getType() !== "m.room.message" &&
